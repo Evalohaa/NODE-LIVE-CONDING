@@ -26,6 +26,20 @@ const wilderController: IController = {
     }
   },
 
+  getOne: async (req, res) => {
+    try {
+      // const { id } = req.params
+      const oneWilder = await dataSource.getRepository(Wilder).findOne({
+        where: { id: parseInt(req.params.wilderId, 10) },
+      });
+      if (oneWilder === null) return res.sendStatus(404);
+      res.send(oneWilder);
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("error while updating wilder");
+    }
+  },
+
   deleteOne: async (req, res) => {
     try {
       const wilder = await dataSource.getRepository(Wilder).delete(req.params.id);

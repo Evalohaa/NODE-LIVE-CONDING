@@ -14,6 +14,7 @@ app.get("/", (req, res) => {
 
 app.post("/wilders", wildersController.create);
 app.get("/wilders", wildersController.getAll);
+app.get("/wilders/:wilderId", wildersController.getOne);
 app.delete("/wilders/:id", wildersController.deleteOne);
 app.patch("/wilders/:id", wildersController.updateOne);
 app.patch("/wilders/:wilderId/skills/:skillId", wildersController.addSkill);
