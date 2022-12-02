@@ -3,6 +3,7 @@ import dataSource from "../db";
 import Wilder from "../entity/Wilder";
 import Skill from "../entity/Skill";
 import IController from "../types/Controller";
+import Grade from "../entity/Grade";
 
 const wilderController: IController = {
   create: async (req, res) => {
@@ -17,6 +18,7 @@ const wilderController: IController = {
   },
 
   getAll: async (req, res) => {
+    // mettre à jour
     try {
       const allWilders = await dataSource.getRepository(Wilder).find();
       res.send(allWilders);
@@ -28,12 +30,15 @@ const wilderController: IController = {
 
   getOne: async (req, res) => {
     try {
-      // const { id } = req.params
       const oneWilder = await dataSource.getRepository(Wilder).findOne({
         where: { id: parseInt(req.params.wilderId, 10) },
-      });
+        relations: { grades: {skill: true} }
+      },);
+      console.log(oneWilder);
       if (oneWilder === null) return res.sendStatus(404);
-      res.send(oneWilder);
+      const wilder = { ...oneWilder, grades: undefined, skills: oneWilder.grades.map(grade => ({ votes: grade.votes, ...grade.skill })) }
+      console.log(wilder);
+      res.send(wilder);
     } catch (err) {
       console.error(err);
       res.status(500).send("error while updating wilder");
@@ -53,18 +58,15 @@ const wilderController: IController = {
   },
 
   updateOne: async (req, res) => {
-    const { name } = req.body;
-    if (name.length > 100 || name.length === 0) {
-      return res.status(422).send("The name should have a length between 1 and 100 characters");
-    }
-
+    // mettre à jour
     try {
+      const { name } = req.body;
+      if (name.length > 100 || name.length === 0) {
+      return res.status(422).send("The name should have a length between 1 and 100 characters");
+      }
       const  { affected }  = await dataSource.getRepository(Wilder).update(req.params.id, req.body);
-      // const wilderUpdated = await dataSource.getRepository(Wilder).update(req.params.id, req.body);
-      // console.log(wilderUpdated); -> { generatedMaps: [], raw: [], affected: 1 }
-      // donc on destructure en prenant le { affected }
-      if (affected !== 0) return res.send("wilder updated");
-      res.sendStatus(404);
+      if (affected === 0) return res.sendStatus(404);
+      res.send("wilder updated");
     } catch (err) {
       console.error(err);
       res.status(500).send("error while updating wilder");
@@ -72,6 +74,7 @@ const wilderController: IController = {
   },
 
   addSkill: async(req, res) => {
+    // mettre à jour
     try {
       const { wilderId, skillId } = req.params
       const wilderToUpdate = await dataSource
@@ -84,8 +87,8 @@ const wilderController: IController = {
       if (wilderToUpdate === null || skillToAdd === null) {
         return res.send("Error, the skill has not been added to wilder");
       }
-      wilderToUpdate.skills = [...wilderToUpdate.skills, skillToAdd];
-      await dataSource.getRepository(Wilder).save(wilderToUpdate);
+      // wilderToUpdate.skills = [...wilderToUpdate.skills, skillToAdd];
+      await dataSource.getRepository(Grade).save({wilderId: parseInt(wilderId, 10), skillId: parseInt(skillId, 10)});
       res.send("Skill added to wilder");
       // if (wilderToUpdate !== null && skillToAdd !== null) {
       //   wilderToUpdate.skills = [...wilderToUpdate.skills, skillToAdd];

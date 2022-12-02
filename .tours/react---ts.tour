@@ -1,0 +1,11 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "React - TS",
+  "steps": [
+    {
+      "file": "server/src/controller/wilders.ts",
+      "description": "      // const wilderUpdated = await dataSource.getRepository(Wilder).update(req.params.id, req.body);\n      // console.log(wilderUpdated); -> { generatedMaps: [], raw: [], affected: 1 }\n      // donc on destructure en prenant le { affected }",
+      "line": 69
+    }
+  ]
+}
